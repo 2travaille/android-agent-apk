@@ -8,36 +8,24 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: thyrlian/android-sdk:latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build Debug APK (faster, no signing needed)
-        run: ./gradlew assembleDebug --stacktrace 2>&1
-
-      - name: Rename APK
-        run: |
-          mkdir -p output
-          cp app/build/outputs/apk/debug/app-debug.apk output/bmu-agent.apk
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v4
         with:
           name: bmu-agent-apk
-          path: output/bmu-agent.apk
+          path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 90
 
       - name: Create Release
@@ -45,6 +33,6 @@ jobs:
         with:
           tag_name: latest
           name: "BMU Agent Android - Latest"
-          files: output/bmu-agent.apk
+          files: app/build/outputs/apk/debug/app-debug.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
