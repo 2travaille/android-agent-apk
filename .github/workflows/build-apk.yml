@@ -25,13 +25,13 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build Release APK
-        run: ./gradlew assembleRelease
+      - name: Build Debug APK (faster, no signing needed)
+        run: ./gradlew assembleDebug --stacktrace 2>&1
 
       - name: Rename APK
         run: |
           mkdir -p output
-          cp app/build/outputs/apk/release/app-release.apk output/bmu-agent.apk
+          cp app/build/outputs/apk/debug/app-debug.apk output/bmu-agent.apk
 
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v4
@@ -42,11 +42,9 @@ jobs:
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
-        if: github.ref == 'refs/heads/main'
         with:
           tag_name: latest
           name: "BMU Agent Android - Latest"
           files: output/bmu-agent.apk
-          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
