@@ -1,0 +1,2 @@
+-keep class com.bmu.agent.** { *; }
+-keep class okhttp3.** { *; }
